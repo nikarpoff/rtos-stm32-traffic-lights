@@ -50,3 +50,55 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Keil project files
+*.axf
+*.d
+*.lst
+*.bak
+*.map
+*.lnp
+*.crf
+*.dep
+*.htm
+*.htm.*
+*.uvguix.*
+*.uvguix
+*.uvoptx
+*.uvprojx.bak
+*.uvprojx.user
+*.uvopt
+*.opt
+
+# Build output files
+*.o
+*.obj
+*.hex
+*.bin
+*.elf
+*.sct
+
+# Temporary files
+*.log
+*.plg
+*.tmp
+*.sbr
+*.pch
+*.ilk
+*.aps
+*.ncb
+*.user
+*.aps
+
+# Backup files
+*~ 
+*.swp
+
+# Folders to ignore
+RTE/
+BUILD/
+
+# Operating system specific
+.DS_Store
+Thumbs.db
+desktop.ini
