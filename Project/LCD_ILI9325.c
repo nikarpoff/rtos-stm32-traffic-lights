@@ -3,23 +3,24 @@
 #include "main.h"
 
 
+// Colors.
 const Tcolor aEGAcolr[16]= { 
-	{"BLACK",			LCD_RGB565_CONVERT_M(0x00, 0x00, 0x00)},// 0 - ??????
-	{"BLUE",			LCD_RGB565_CONVERT_M(0x00, 0x00, 0x80)},// 1 - ?????
-	{"GREEN",			LCD_RGB565_CONVERT_M(0x00, 0x80, 0x00)},// 2 - ???????
-	{"CYAN",			LCD_RGB565_CONVERT_M(0x00, 0x80, 0x80)},// 3 - ??????????? TEAL
-	{"RED", 			LCD_RGB565_CONVERT_M(0x80, 0x00, 0x00)},// 4 - ???????
-	{"MAGENTA", 		LCD_RGB565_CONVERT_M(0x80, 0x00, 0x80)},// 5 - ????????? PURPLE
-	{"BROWN", 			LCD_RGB565_CONVERT_M(0x80, 0x40, 0x00)},// 6 - ??????????	 MAROON
-	{"LIGHT GRAY", 		LCD_RGB565_CONVERT_M(0x80, 0x80, 0x80)},// 7 - ??????-?????	 SILVER
-	{"DARK GRAY", 		LCD_RGB565_CONVERT_M(0x40, 0x40, 0x40)},// 8 - ?????-?????	 
-	{"BRIGHT BLUE", 	LCD_RGB565_CONVERT_M(0x40, 0x40, 0xFF)},// 9 - ???????	 
-	{"BRIGHT GREEN", 	LCD_RGB565_CONVERT_M(0x40, 0xFF, 0x40)},// 10 - ????-???????	 
-	{"BRIGHT CYAN", 	LCD_RGB565_CONVERT_M(0x40, 0xFF, 0xFF)},// 11 - ????? ????-???????	 
-	{"BRIGHT RED", 		LCD_RGB565_CONVERT_M(0xFF, 0x40, 0x40)},// 12 - ????-???????	 
-	{"BRIGHT MAGENTA", 	LCD_RGB565_CONVERT_M(0xFF, 0x40, 0xFF)},// 13 - ????-?????????	 
-	{"BRIGHT YELLOW", 	LCD_RGB565_CONVERT_M(0xFF, 0xFF, 0x40)},// 14 - ??????	 
-	{"BRIGHT WHITE", 	LCD_RGB565_CONVERT_M(0xFF, 0xFF, 0xFF)},// 15 - ????-?????	 
+	{"BLACK",			LCD_RGB565_CONVERT_M(0x00, 0x00, 0x00)},
+	{"BLUE",			LCD_RGB565_CONVERT_M(0x00, 0x00, 0x80)},
+	{"GREEN",			LCD_RGB565_CONVERT_M(0x00, 0x80, 0x00)},
+	{"CYAN",			LCD_RGB565_CONVERT_M(0x00, 0x80, 0x80)},
+	{"RED", 			LCD_RGB565_CONVERT_M(0x80, 0x00, 0x00)},
+	{"MAGENTA", 		LCD_RGB565_CONVERT_M(0x80, 0x00, 0x80)},
+	{"BROWN", 			LCD_RGB565_CONVERT_M(0x80, 0x40, 0x00)},
+	{"LIGHT GRAY", 		LCD_RGB565_CONVERT_M(0x80, 0x80, 0x80)},
+	{"DARK GRAY", 		LCD_RGB565_CONVERT_M(0x40, 0x40, 0x40)},
+	{"BRIGHT BLUE", 	LCD_RGB565_CONVERT_M(0x40, 0x40, 0xFF)},
+	{"BRIGHT GREEN", 	LCD_RGB565_CONVERT_M(0x40, 0xFF, 0x40)},
+	{"BRIGHT CYAN", 	LCD_RGB565_CONVERT_M(0x40, 0xFF, 0xFF)},
+	{"BRIGHT RED", 		LCD_RGB565_CONVERT_M(0xFF, 0x40, 0x40)},
+	{"BRIGHT MAGENTA", 	LCD_RGB565_CONVERT_M(0xFF, 0x40, 0xFF)},
+	{"BRIGHT YELLOW", 	LCD_RGB565_CONVERT_M(0xFF, 0xFF, 0x40)},
+	{"BRIGHT WHITE", 	LCD_RGB565_CONVERT_M(0xFF, 0xFF, 0xFF)},
 };
 
 static void gpio_lcd_init(void);
@@ -86,25 +87,24 @@ LCDTP_DIN   PA7     31  32      PA6      LCDTP_DOUT
 
 static void board_lcd_reset()
 {
-    // reset LCD
-	LL_GPIO_ResetOutputPin(LCD_RESET_GPIO_Port, LCD_RESET_Pin);
-	osDelay(50);
-	//LL_mDelay(50);//50ms
-	LL_GPIO_SetOutputPin(LCD_RESET_GPIO_Port, LCD_RESET_Pin);
+		// reset LCD
+		LL_GPIO_ResetOutputPin(LCD_RESET_GPIO_Port, LCD_RESET_Pin);
+		osDelay(50);
+		LL_GPIO_SetOutputPin(LCD_RESET_GPIO_Port, LCD_RESET_Pin);
 }
 
 static void bus_lcd_write_reg(uint16_t address, uint16_t value)
 {
     // write register address
-    LCD_CLEAR_RS; //????????????? ?????? ??????? ?? ????? LCD_RS, ?.?. ?? ???? ?????? ????? ????????? ?????? ???????????? ????????
-    LCD_DATABUS_PORT->ODR = address; //????????????? ?????? ?? ????
-    LCD_CLEAR_WR; //????????????? ?????? ??????? ?? ????? LCD_WR, ?.?. ?????? ?? ???? ???????????? ? ??????????, LCD_RD - ??????? ???????
-    __NOP(); 
-    LCD_SET_WR;	//????????????? ??????? ??????? ?? ????? LCD_WR, ?? ????????? ?????? ?????????? ?????? ??????
-    LCD_SET_RS; //????????????? ??????? ??????? ?? ????? LCD_RS, ?.?. ?? ???? ?????? ????? ?????????? ??????
+    LCD_CLEAR_RS;
+    LCD_DATABUS_PORT->ODR = address;
+    LCD_CLEAR_WR;
+    __NOP();
+    LCD_SET_WR;
+    LCD_SET_RS;
     // write register data
     LCD_DATABUS_PORT->ODR = value;
-    LCD_CLEAR_WR;//????????????? ?????? ??????? ?? ????? LCD_WR, ?.?. ?????? ?? ???? ???????????? ? ??????????, LCD_RD - ??????? ???????
+    LCD_CLEAR_WR;
     __NOP(); 
     LCD_SET_WR;
 }
@@ -124,7 +124,7 @@ static void board_lcd_write_words(uint16_t address, uint16_t *data, size_t size)
     while (data != data_end) {
         LCD_DATABUS_PORT->ODR = *data;
         LCD_CLEAR_WR;
-         __NOP(); 
+        __NOP();
         LCD_SET_WR;
         data++;
     }
@@ -147,11 +147,11 @@ static void bus_lcd_read_reg(uint16_t address, uint16_t *value)
     LCD_DATABUS_PORT->MODER = LL_GPIO_MODE_INPUT;
     // read data
     LCD_CLEAR_RD;
-    for(i=0;i<3;i++) // ???? 0,2 ????? 
+    for(i=0;i<3;i++)
         __NOP();
     *value = LCD_DATABUS_PORT->IDR;
     LCD_SET_RD;
-	// restore gpio mode
+		// restore gpio mode
     LCD_DATABUS_PORT->MODER = data_port_mode;
 }
 
@@ -163,73 +163,73 @@ static void lcd_bus_test(void)
         bus_lcd_write_reg(0x0020, i);
         bus_lcd_read_reg(0x0020, &act_val);
         if (act_val != i) {
-            /* Initialization Error */
-			while (1){}
+        /* Initialization Error */
+						while (1){}
         }
     }
-	bus_lcd_write_reg(0x0020, 0x00);
+		bus_lcd_write_reg(0x0020, 0x00);
 }
 
 static void gpio_lcd_init(void)
 {
-	LL_GPIO_InitTypeDef gpio_initstruct = {0};
-	/* GPIO Ports Clock Enable */
-	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD);
-	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
-	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOC);
-	/*Configure GPIO pin lcd bus control 
-	PB.10(WR), PB.11(RD) , PB.08(CS), PB.09(RS)*/
-	LL_GPIO_SetOutputPin(LCD_CONTROLBUS_PORT, 	 LL_GPIO_PIN_8 | LL_GPIO_PIN_9 
-											|LL_GPIO_PIN_10 | LL_GPIO_PIN_11);
-	gpio_initstruct.Pin = 	 LL_GPIO_PIN_8 | LL_GPIO_PIN_9 
-							|LL_GPIO_PIN_10 | LL_GPIO_PIN_11;
-	gpio_initstruct.Mode = LL_GPIO_MODE_OUTPUT;
-	gpio_initstruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-	gpio_initstruct.Pull = LL_GPIO_PULL_NO;
-	gpio_initstruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
-	if (LL_GPIO_Init(LCD_CONTROLBUS_PORT, &gpio_initstruct) != SUCCESS)
-	{
-		/* Initialization Error */
-		while (1){}
-	}
-	/*Configure GPIO pin data bus 
-	PD.00(D0), PD.01(D1), PD.02(D2), PD.03(D3), 
-	PD.04(D4), PD.05(D5), PD.06(D6), PD.07(D7), 
-	PD.08(D8), PD.09(D9), PD.10(D10), PD.11(D11),
-	PD.12(D12), PD.13(D13), PD.14(D14), PD.15(D15)*/
-	LL_GPIO_SetOutputPin(LCD_DATABUS_PORT, LL_GPIO_PIN_ALL);
-	gpio_initstruct.Pin = LL_GPIO_PIN_ALL;
-	gpio_initstruct.Mode = LL_GPIO_MODE_OUTPUT;
-	gpio_initstruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-	gpio_initstruct.Pull = LL_GPIO_PULL_NO;
-	gpio_initstruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
- 	if (LL_GPIO_Init(LCD_DATABUS_PORT, &gpio_initstruct) != SUCCESS)
-	{
-		/* Initialization Error */
-		while (1){}
-	}
-	/*Configure GPIO pin reset, backlight control PWM: PC.11(RST)  PC.10(BL_PWM) */
-	gpio_initstruct.Pin =  LL_GPIO_PIN_11 		| LL_GPIO_PIN_10;
-	gpio_initstruct.Mode = LL_GPIO_MODE_OUTPUT;
-	gpio_initstruct.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
-	gpio_initstruct.Pull = LL_GPIO_PULL_UP;
-	gpio_initstruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-	if (LL_GPIO_Init(GPIOC, &gpio_initstruct) != SUCCESS)
-	{
-		/* Initialization Error */
-		while (1){}
-	}
-	LL_GPIO_SetOutputPin(LCD_BL_PWM_GPIO_Port,LCD_BL_PWM_Pin);//???????????? ???????
+		LL_GPIO_InitTypeDef gpio_initstruct = {0};
+		/* GPIO Ports Clock Enable */
+		LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD);
+		LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
+		LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOC);
+		/*Configure GPIO pin lcd bus control 
+		PB.10(WR), PB.11(RD) , PB.08(CS), PB.09(RS)*/
+		LL_GPIO_SetOutputPin(LCD_CONTROLBUS_PORT, LL_GPIO_PIN_8 | LL_GPIO_PIN_9 
+												| LL_GPIO_PIN_10 | LL_GPIO_PIN_11);
+		gpio_initstruct.Pin = LL_GPIO_PIN_8 | LL_GPIO_PIN_9 
+												| LL_GPIO_PIN_10 | LL_GPIO_PIN_11;
+		gpio_initstruct.Mode = LL_GPIO_MODE_OUTPUT;
+		gpio_initstruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+		gpio_initstruct.Pull = LL_GPIO_PULL_NO;
+		gpio_initstruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+		if (LL_GPIO_Init(LCD_CONTROLBUS_PORT, &gpio_initstruct) != SUCCESS)
+		{
+			/* Initialization Error */
+			while (1){}
+		}
+		/*Configure GPIO pin data bus 
+		PD.00(D0), PD.01(D1), PD.02(D2), PD.03(D3), 
+		PD.04(D4), PD.05(D5), PD.06(D6), PD.07(D7), 
+		PD.08(D8), PD.09(D9), PD.10(D10), PD.11(D11),
+		PD.12(D12), PD.13(D13), PD.14(D14), PD.15(D15)*/
+		LL_GPIO_SetOutputPin(LCD_DATABUS_PORT, LL_GPIO_PIN_ALL);
+		gpio_initstruct.Pin = LL_GPIO_PIN_ALL;
+		gpio_initstruct.Mode = LL_GPIO_MODE_OUTPUT;
+		gpio_initstruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+		gpio_initstruct.Pull = LL_GPIO_PULL_NO;
+		gpio_initstruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+		if (LL_GPIO_Init(LCD_DATABUS_PORT, &gpio_initstruct) != SUCCESS)
+		{
+				/* Initialization Error */
+				while (1){}
+		}
+		/*Configure GPIO pin reset, backlight control PWM: PC.11(RST)  PC.10(BL_PWM) */
+		gpio_initstruct.Pin =  LL_GPIO_PIN_11 		| LL_GPIO_PIN_10;
+		gpio_initstruct.Mode = LL_GPIO_MODE_OUTPUT;
+		gpio_initstruct.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
+		gpio_initstruct.Pull = LL_GPIO_PULL_UP;
+		gpio_initstruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+		if (LL_GPIO_Init(GPIOC, &gpio_initstruct) != SUCCESS)
+		{
+				/* Initialization Error */
+				while (1){}
+		}
+		LL_GPIO_SetOutputPin(LCD_BL_PWM_GPIO_Port,LCD_BL_PWM_Pin);//???????????? ???????
 }
 
 void init_lcd_ili9325(void)
 {
     uint16_t device_code = 0;
-	gpio_lcd_init();
-	// reset LCD
+		gpio_lcd_init();
+		// reset LCD
     board_lcd_reset();
     // read device code
-	LCD_CAPTURE_BUS;
+		LCD_CAPTURE_BUS;
     bus_lcd_read_reg(0x0000, &device_code);
     if (device_code == 0x9325 || device_code == 0x9328) {
         // test write operation
@@ -295,8 +295,8 @@ void init_lcd_ili9325(void)
         bus_lcd_write_reg(0x92, 0x0600);
         bus_lcd_write_reg(0x07, 0x0133); /* 262K color and display ON */
     }
-	LCD_RELEASE_BUS;
-	lcd_fill_color(0, 0, LCD_WIDTH,LCD_HEIGTH, LCD_COLOR_BLACK);
+		LCD_RELEASE_BUS;
+		lcd_fill_color(0, 0, LCD_WIDTH,LCD_HEIGTH, LCD_COLOR_BLACK);
 }
 
 void lcd_fill_region(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t *colors_data)
@@ -313,6 +313,7 @@ void lcd_fill_region(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t *c
         y1 = y2;
         y2 = y_tmp;
     }
+		
 	LCD_CAPTURE_BUS;
     // set gram coordinates
     bus_lcd_write_reg(LCD_REGISTER_GRAM_X_ADDR, x1);
@@ -347,6 +348,7 @@ void  lcd_fill_color(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t co
         y1 = y2;
         y2 = y_tmp;
     }
+		
     // set gram coordinates
 	LCD_CAPTURE_BUS;
     bus_lcd_write_reg(LCD_REGISTER_GRAM_X_ADDR, x1);
