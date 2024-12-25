@@ -21,7 +21,7 @@ uint16_t verShift;          // vertical shift for traffic lights
 uint16_t lightRadius;       // radius of one ~more~ light
 
 
-void InitDisplay(void, uint16_t tlNumber, uint16_t lghtsNumber) {
+void InitDisplay(uint16_t tlNumber, uint16_t lghtsNumber) {
     init_lcd_ili9325();
     
     trafficsNumber = tlNumber;
@@ -54,7 +54,7 @@ void drawCircle(uint16_t x, uint16_t y, uint16_t radius, uint16_t color) {
     }
 }
 
-void drawTrafficLight(uint16_t idTraffic, uint16_t idLight, uint32_t color) {
+void DrawTrafficLight(uint16_t idTraffic, uint16_t idLight, uint32_t color) {
     uint16_t centerX = lightVerSpacing * (idLight + 1) - verShift;
     uint16_t centerY = lightHorSpacing * (idTraffic + 1) - horShift;
 

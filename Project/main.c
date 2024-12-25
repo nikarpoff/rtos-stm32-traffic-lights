@@ -68,8 +68,6 @@ int main(void)
 		
 		osDelay(50);
 		
-		ProcessDisplay();
-		
 		//delay(10);
 		GPIOE->BRR = GPIO_ODR_11|GPIO_ODR_13;
 		//delay(10);
