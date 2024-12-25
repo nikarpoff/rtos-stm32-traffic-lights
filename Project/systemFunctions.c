@@ -2,7 +2,7 @@
 #include "utility.c"
 
 void blinkTheColor(void* argument);
-void customDelay(unsigned int microDelay, unsigned int totalDelay, unsigned int stateCopy, unsigned int* state);
+int customDelay(unsigned int microDelay, unsigned int totalDelay, unsigned int stateCopy, unsigned int* state);
 
 void blinkTheColor(void* argument) {
 	BlinkyInfo* blinkyInfo = (BlinkyInfo*)argument;
@@ -24,9 +24,9 @@ void blinkTheColor(void* argument) {
 	while (currentDelayTime < blinkyInfo->totalTimeDelay) {
 		message.type = BRIGHT_STATE;
 		
-		osMessageQueuePut(blinkyInfo->trafficLightsId, &message, 0, microDelay);
+		osMessagePut(blinkyInfo->queueId, *(uint32_t*)&message, microDelay);
 		
-		if (!customDelay(microDelay, blinkyInfo->blinkTimeDelay, blinkyInfo->stateIdCopy, blinkyInfo->stateId) {
+		if (customDelay(microDelay, blinkyInfo->blinkTimeDelay, blinkyInfo->stateIdCopy, blinkyInfo->stateId) == 1) {
 			break;
 		}
 		
@@ -34,9 +34,9 @@ void blinkTheColor(void* argument) {
 		
 		message.type = DIM_STATE;
 		
-		osMessageQueuePut(blinkyInfo->trafficLightsId, &message, 0, microDelay);
+		osMessagePut(blinkyInfo->queueId, *(uint32_t*)&message, microDelay);
 		
-		if (!customDelay(microDelay, blinkyInfo->blinkTimeDelay, blinkyInfo->stateIdCopy, blinkyInfo->stateId) {
+		if (customDelay(microDelay, blinkyInfo->blinkTimeDelay, blinkyInfo->stateIdCopy, blinkyInfo->stateId) == 1) {
 			break;
 		}
 		
@@ -44,13 +44,13 @@ void blinkTheColor(void* argument) {
 	}
 }
 
-bool customDelay(unsigned int microDelay, unsigned int totalDelay, unsigned int stateCopy, unsigned int* state) {
+int customDelay(unsigned int microDelay, unsigned int totalDelay, unsigned int stateCopy, unsigned int* state) {
 	unsigned int currentDelayTime;
 	currentDelayTime = 0;
 	
 	while (currentDelayTime < totalDelay) {
 		if (stateCopy != *state) {
-			return false;
+			return 1;
 		}
 		
 		osDelay(microDelay);
@@ -58,5 +58,5 @@ bool customDelay(unsigned int microDelay, unsigned int totalDelay, unsigned int 
 		currentDelayTime = currentDelayTime + microDelay;
 	}
 	
-	return true;
+	return 0;
 }

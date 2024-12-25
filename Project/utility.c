@@ -13,6 +13,7 @@ typedef struct {
 	unsigned char threadId;
 	unsigned char lightId;
 	unsigned int color;
+	unsigned int type;
 } Message;
 
 typedef struct {
@@ -27,7 +28,7 @@ typedef struct {
 
 typedef struct {
 	Ligth light;
-	osMessageQueueId_t queueId;
+	osMessageQId queueId;
 	unsigned char threadId;
 	unsigned int stateIdCopy;
 	unsigned int* stateId;
