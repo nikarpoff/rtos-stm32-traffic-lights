@@ -1,10 +1,14 @@
 #include "cmsis_os.h"
 #include "utility.c"
 
-void blinkTheColor(void* argument);
-int customDelay(unsigned int microDelay, unsigned int totalDelay, unsigned int stateCopy, unsigned int* state);
+extern void sendMessage(Message message);
+void blinkTheColor(void const* argument);
+int customDelay(unsigned int microDelay, unsigned int totalDelay, int stateCopy, volatile int* state);
+void processLights(Ligth const* lights, int const count, unsigned char threadId, volatile int* stateId, int stateIdCopy, unsigned int totalTimeDelay, unsigned int blinkTimeDelay);
+int getLightColorFromState(unsigned int color, unsigned int type);
+void processBlinkLight(void* argument);
 
-void blinkTheColor(void* argument) {
+void blinkTheColor(void const* argument) {
 	BlinkyInfo* blinkyInfo = (BlinkyInfo*)argument;
 	
 	if (argument == NULL) {
@@ -17,14 +21,20 @@ void blinkTheColor(void* argument) {
 	unsigned int currentDelayTime;
 	currentDelayTime = 0;
 	
+	int brightHexColor;
+	int dimHexColor;
+			
+	brightHexColor = getLightColorFromState(blinkyInfo->light.color, BRIGHT_STATE);
+	dimHexColor = getLightColorFromState(blinkyInfo->light.color, DIM_STATE);
+	
 	Message message;
 	message.threadId = blinkyInfo->threadId;
-	message.color = blinkyInfo->light.color;
+	message.lightId = blinkyInfo->light.color;
 	
 	while (currentDelayTime < blinkyInfo->totalTimeDelay) {
-		message.type = BRIGHT_STATE;
+		message.color = brightHexColor;
 		
-		osMessagePut(blinkyInfo->queueId, *(uint32_t*)&message, microDelay);
+		sendMessage(message);
 		
 		if (customDelay(microDelay, blinkyInfo->blinkTimeDelay, blinkyInfo->stateIdCopy, blinkyInfo->stateId) == 1) {
 			break;
@@ -32,9 +42,9 @@ void blinkTheColor(void* argument) {
 		
 		currentDelayTime = currentDelayTime + blinkyInfo->blinkTimeDelay;
 		
-		message.type = DIM_STATE;
+		message.color = dimHexColor;
 		
-		osMessagePut(blinkyInfo->queueId, *(uint32_t*)&message, microDelay);
+		sendMessage(message);
 		
 		if (customDelay(microDelay, blinkyInfo->blinkTimeDelay, blinkyInfo->stateIdCopy, blinkyInfo->stateId) == 1) {
 			break;
@@ -44,7 +54,7 @@ void blinkTheColor(void* argument) {
 	}
 }
 
-int customDelay(unsigned int microDelay, unsigned int totalDelay, unsigned int stateCopy, unsigned int* state) {
+int customDelay(unsigned int microDelay, unsigned int totalDelay, int stateCopy, volatile int* state) {
 	unsigned int currentDelayTime;
 	currentDelayTime = 0;
 	
@@ -59,4 +69,51 @@ int customDelay(unsigned int microDelay, unsigned int totalDelay, unsigned int s
 	}
 	
 	return 0;
+}
+
+void processLights(Ligth const* lights, int const count, unsigned char threadId, volatile int* stateId, int stateIdCopy, unsigned int totalTimeDelay, unsigned int blinkTimeDelay) {
+	for (int i = 0; i < count; i++) {
+		Ligth light;
+		light = *(lights + i);
+		
+		if (light.type == BLINK_STATE) {
+			BlinkyInfo blinkyInfo;
+			blinkyInfo.light = light;
+			blinkyInfo.threadId = threadId;
+			blinkyInfo.stateIdCopy = stateIdCopy;
+			blinkyInfo.stateId = stateId;
+			blinkyInfo.blinkTimeDelay = blinkTimeDelay;
+			blinkyInfo.totalTimeDelay = totalTimeDelay;
+			
+			processBlinkLight((void*)&blinkyInfo);
+		}
+		else {
+			int hexColor;
+			
+			hexColor = getLightColorFromState(light.color, light.type);
+			
+			Message message;
+			message.color = hexColor;
+			message.lightId = light.lightId;
+			message.threadId = threadId;
+			
+			sendMessage(message);
+		}
+	}
+}
+
+void processBlinkLight(void * argument) {
+	osThreadDef(blinkTheColor, osPriorityNormal, 1, 32);
+	osThreadCreate(osThread(blinkTheColor), argument);
+}
+
+int getLightColorFromState(unsigned int color, unsigned int type) {
+	if (color == RED_COLOR && type == BRIGHT_STATE) return 0xF800;
+	else if (color == RED_COLOR && type == DIM_STATE) return 0x6800;
+	else if (color == YELLOW_COLOR && type == BRIGHT_STATE) return 0xFC00;
+	else if (color == YELLOW_COLOR && type == DIM_STATE) return 0xBC63;
+	else if (color == GREEN_COLOR && type == BRIGHT_STATE) return 0xFFE0;
+	else if (color == GREEN_COLOR && type == DIM_STATE) return 0xB5C0;
+	
+	return 0x0000;
 }
