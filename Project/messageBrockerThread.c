@@ -2,7 +2,7 @@
 #include "utility.c"
 #include "displayctrl.h"
 
-#define MESSAGE_QUEUE_SIZE 16
+#define MESSAGE_QUEUE_SIZE 64
 
 osThreadId tidConsumeThread;  // consume thread
 
@@ -12,7 +12,7 @@ osMessageQId messageQueue;            									    // declare an ID for the mess
 void sendMessage(Message);
 void consumeMessageThread(void const *argument);
 
-osThreadDef(consumeMessageThread, osPriorityNormal, 1, 32000);
+osThreadDef(consumeMessageThread, osPriorityNormal, 1, 0);
  
 
 void sendMessage(Message message) {

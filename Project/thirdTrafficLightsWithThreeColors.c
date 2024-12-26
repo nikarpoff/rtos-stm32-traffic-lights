@@ -10,30 +10,30 @@ int thirdLightsCount;
 TrafficLightState thirdThreadStates[3] = {
 	{
 		{
-			{0, RED_COLOR, DIM_STATE},
+			{0, RED_COLOR, BRIGHT_STATE},
 			{1, YELLOW_COLOR, DIM_STATE},
 			{2, GREEN_COLOR, DIM_STATE} 
-		}, 4000
+		}, 2000
 	},
 	{
 		{
-			{0, RED_COLOR, BRIGHT_STATE},
+			{0, RED_COLOR, DIM_STATE},
 			{1, YELLOW_COLOR, BRIGHT_STATE},
-			{2, GREEN_COLOR, BRIGHT_STATE} 
+			{2, GREEN_COLOR, DIM_STATE} 
 		}, 1000
 	},
 	{
 		{
-			{0, RED_COLOR, BLINK_STATE},
-			{1, YELLOW_COLOR, BLINK_STATE},
-			{2, GREEN_COLOR, BLINK_STATE} 
-		}, 3000
-	}
+			{0, RED_COLOR, DIM_STATE},
+			{1, YELLOW_COLOR, DIM_STATE},
+			{2, GREEN_COLOR, BRIGHT_STATE} 
+		}, 500
+	},
 };
 
 void thirdTrafficLightThread (void const *argument);              // thread function
 osThreadId thirdThreadId;                             						// thread id
-osThreadDef(thirdTrafficLightThread, osPriorityNormal, 1, 32000);       // thread object
+osThreadDef(thirdTrafficLightThread, osPriorityNormal, 1, 0);       // thread object
 
 osSemaphoreDef(thirdSemaphore); 
 osSemaphoreId thirdSemaphoreId;	
@@ -86,7 +86,7 @@ void thirdTrafficLightThread (void const *argument) {
 				
 				osSemaphoreWait(firstSemaphoreId, osWaitForever);
 	
-				firstThreadState = 2;
+				firstThreadState = 0;
 	
 				osSemaphoreRelease(firstSemaphoreId);
 				

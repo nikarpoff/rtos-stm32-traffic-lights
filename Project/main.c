@@ -13,13 +13,14 @@ extern int Init_Input (void);
 extern int initFirstTrafficLight();
 extern int initSecondTrafficLight();
 extern int initThirdTrafficLight();
+extern void InitDisplay(uint16_t tlNumber, uint16_t lghtsNumber);
 
 int main(void)
 {
 	osKernelInitialize();
 	
 	ConfigureApp();
-	InitDisplay();
+	InitDisplay(3, 3);
 	
 	InitMessageQueue();
 	StartConsumer();
@@ -51,6 +52,7 @@ int main(void)
 	
 	while(1) { }
 }
+
 
 void ConfigureApp() {
 	volatile uint32_t StartUpCounter = 0, HSEStatus = 0;
@@ -98,4 +100,22 @@ void ConfigureApp() {
 	SET_BIT(GPIOE->OTYPER,GPIO_OTYPER_OT_13);
 
 	SET_BIT(GPIOE->PUPDR, GPIO_PUPDR_PUPDR13_0);
+	
+	
+	// Enable clock for GPIOC
+	RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
+	
+	// Set PC4 (K1) as input
+	GPIOC->MODER &= ~GPIO_MODER_MODER4;
+	GPIOC->PUPDR &= ~GPIO_PUPDR_PUPDR4;
+	
+	
+	// Set PC6 (K1) as input
+	GPIOC->MODER &= ~GPIO_MODER_MODER6;
+	GPIOC->PUPDR &= ~GPIO_PUPDR_PUPDR6;
+	
+	GPIOC->MODER &= ~GPIO_MODER_MODER0_Msk;
+  GPIOC->MODER |= GPIO_MODER_MODER0_0;
+
+  GPIOC->OTYPER |= GPIO_OTYPER_OT_0;
 }

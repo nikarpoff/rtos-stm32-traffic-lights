@@ -89,7 +89,7 @@ static void board_lcd_reset()
 {
 		// reset LCD
 		LL_GPIO_ResetOutputPin(LCD_RESET_GPIO_Port, LCD_RESET_Pin);
-		osDelay(50);
+		osDelay(5);
 		LL_GPIO_SetOutputPin(LCD_RESET_GPIO_Port, LCD_RESET_Pin);
 }
 

@@ -3,6 +3,15 @@
 #include "RTE_COMPONENTS.h"
 #include <stdio.h>
 
+extern volatile int firstThreadState;
+extern volatile int secondThreadState;
+extern volatile int thirdThreadState;
+
+extern osSemaphoreId firstSemaphoreId;
+extern osSemaphoreId secondSemaphoreId;
+extern osSemaphoreId thirdSemaphoreId;
+
+
  
 void Input_K1_Thread (void const *argument);                // thread function
 osThreadId tid_Input_K1_Thread;                             // thread id
@@ -35,27 +44,45 @@ int Init_Input (void) {
  *---------------------------------------------------------------------------*/
 void Input_K1_Thread (void const *argument) {	
 		while (1) {
-				// Check is PB7 (k1) pressed
-				if (!(GPIOB->IDR & (1 << 7))) {  
+				// Check is PC4 (k1) pressed
+				if ((GPIOC->IDR & GPIO_IDR_4) == 0) {  
 						// k1 pressed -> k2 cannot be checked
 						osSemaphoreWait(semaphore_input_id, osWaitForever); // wait for ability to check k1 (when k2 is not pressed)
 						
-						// DO SMTH
+						// Debonce delay
+						osDelay(50);
+						
+						if ((GPIOC->IDR & GPIO_IDR_4) != 0) {
+								// k2 now available
+								osSemaphoreRelease(semaphore_input_id);
+								continue;
+						}
 				
 						do {
+								// Increase states
+								osSemaphoreWait(firstSemaphoreId, osWaitForever);
+								firstThreadState++;
+								osSemaphoreRelease(firstSemaphoreId);
+							
+								osSemaphoreWait(secondSemaphoreId, osWaitForever);
+								secondThreadState++;
+								osSemaphoreRelease(secondSemaphoreId);
+							
+							
+								osSemaphoreWait(thirdSemaphoreId, osWaitForever);
+								secondThreadState++;
+								osSemaphoreRelease(thirdSemaphoreId);
+
 								// Sleep for 100 ms
 								osDelay(100);
-						} while (!(GPIOB->IDR & (1 << 7)));
+						} while ((GPIOC->IDR & GPIO_IDR_4) == 0);
 			
-						// k1 unpressed
-						
-						// DO SMTH
-						
+						// k1 unpressed						
 						// k2 now available
 						osSemaphoreRelease(semaphore_input_id);
 				}
 		
-				osDelay(20);
+				osDelay(50);
 		}
 }
 
@@ -65,67 +92,43 @@ void Input_K1_Thread (void const *argument) {
 void Input_K2_Thread (void const *argument) {	
 		while (1) {
 				// Check is PB7 (k1) pressed
-				if (!(GPIOB->IDR & (1 << 7))) {  
+				if ((GPIOC->IDR & GPIO_IDR_6) == 0) {  
 						// k2 pressed -> k1 cannot be checked
 						osSemaphoreWait(semaphore_input_id, osWaitForever); // wait for ability to check k2 (when k1 is not pressed)
 						
-						// DO SMTH
+						// Debounce delay
+						osDelay(50);
+						
+						if ((GPIOC->IDR & GPIO_IDR_6) != 0) {
+								// k2 now available
+								osSemaphoreRelease(semaphore_input_id);
+								continue;
+						}
 				
 						do {
+								// Set states to initial
+								osSemaphoreWait(firstSemaphoreId, osWaitForever);
+								firstThreadState = 0;
+								osSemaphoreRelease(firstSemaphoreId);
+							
+								osSemaphoreWait(secondSemaphoreId, osWaitForever);
+								secondThreadState = 0;
+								osSemaphoreRelease(secondSemaphoreId);
+							
+							
+								osSemaphoreWait(thirdSemaphoreId, osWaitForever);
+								thirdThreadState = 0;
+								osSemaphoreRelease(thirdSemaphoreId);
+							
 								// Sleep for 100 ms
 								osDelay(100);
-						} while (!(GPIOB->IDR & (1 << 7)));
+						} while ((GPIOC->IDR & GPIO_IDR_6) == 0);
 			
 						// k2 unpressed
-						
-						// DO SMTH
-						
 						// k1 now available
 						osSemaphoreRelease(semaphore_input_id);
 			}
 		
-			osDelay(20);
+			osDelay(50);
   }
 }
-
-
-/**
-uint16_t scankeypad(void) {
-		uint16_t key_code=0;
-		uint8_t tmpbuf=0;
-		int i;
-		for(i=0; i<4; i++) 
-		{
-				LL_GPIO_ResetOutputPin(GPIOC,1<<(4+i));
-				__NOP(); __NOP(); __NOP(); __NOP();
-				tmpbuf= (uint8_t)LL_GPIO_ReadInputPort(GPIOC);
-				tmpbuf= ~tmpbuf & 0x0F;
-				key_code |=tmpbuf<<(4*i);
-				LL_GPIO_SetOutputPin(GPIOC,1<<(4+i));
-		}
-		return key_code;
-}
-*/
-
-/**
-void InitKpd4(void) 
-{
-	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOC);//GPIOC
-	//PC0,PC1,PC2,PC3 In
-	LL_GPIO_InitTypeDef gpio_initstruct;
-	gpio_initstruct.Pin        = LL_GPIO_PIN_0|LL_GPIO_PIN_1|LL_GPIO_PIN_2|LL_GPIO_PIN_3;
-	gpio_initstruct.Mode       = LL_GPIO_MODE_INPUT;
-	gpio_initstruct.Pull       = LL_GPIO_PULL_UP;
-	if (LL_GPIO_Init(GPIOC, &gpio_initstruct) != SUCCESS)
-		while (1){} 
-	
-	//PC4,PC5,PC6,PC7 Out
-	gpio_initstruct.Pin        = LL_GPIO_PIN_4|LL_GPIO_PIN_5|LL_GPIO_PIN_6|LL_GPIO_PIN_7;
-	gpio_initstruct.Mode       = LL_GPIO_MODE_OUTPUT;
-	gpio_initstruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-	gpio_initstruct.Pull       = LL_GPIO_PULL_UP;
-	if (LL_GPIO_Init(GPIOC, &gpio_initstruct) != SUCCESS)
-		while (1){} 
-	LL_GPIO_SetOutputPin (GPIOC, LL_GPIO_PIN_4|LL_GPIO_PIN_5|LL_GPIO_PIN_6|LL_GPIO_PIN_7);
-}
-*/

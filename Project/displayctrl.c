@@ -28,11 +28,11 @@ void InitDisplay(uint16_t tlNumber, uint16_t lghtsNumber) {
     lightsNumber = lghtsNumber;
 
     // You should to know that we swaped width and height (cause we want to use albume orientation)
-    lightRadius = (DISPLAY_HEIGHT / trafficsNumber) / 2;
+    lightRadius = (DISPLAY_HEIGHT / trafficsNumber) / 4;
     
     // Uniformly split space
     if (lightsNumber == 1) {
-        lightVerSpacing = DISPLAY_WIDTH / 2;
+        lightVerSpacing = DISPLAY_WIDTH / 3;
         verShift = 0;
     }
     else {

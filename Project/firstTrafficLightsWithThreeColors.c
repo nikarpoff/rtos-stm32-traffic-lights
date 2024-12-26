@@ -13,20 +13,20 @@ TrafficLightState firstThreadStates[3] = {
 		{
 			{0, RED_COLOR, BRIGHT_STATE},
 			{1, YELLOW_COLOR, DIM_STATE},
-			{2, GREEN_COLOR, BLINK_STATE} 
+			{2, GREEN_COLOR, DIM_STATE} 
 		}, 2000
 	},
 	{
 		{
 			{0, RED_COLOR, DIM_STATE},
-			{1, YELLOW_COLOR, DIM_STATE},
-			{2, GREEN_COLOR, BRIGHT_STATE} 
+			{1, YELLOW_COLOR, BRIGHT_STATE},
+			{2, GREEN_COLOR, DIM_STATE} 
 		}, 3000
 	},
 	{
 		{
-			{0, RED_COLOR, BRIGHT_STATE},
-			{1, YELLOW_COLOR, BRIGHT_STATE},
+			{0, RED_COLOR, DIM_STATE},
+			{1, YELLOW_COLOR, DIM_STATE},
 			{2, GREEN_COLOR, BRIGHT_STATE} 
 		}, 1500
 	},
@@ -34,7 +34,7 @@ TrafficLightState firstThreadStates[3] = {
 
 void firstTrafficLightThread (void const *argument);              // thread function
 osThreadId firstThreadId;                             						// thread id
-osThreadDef(firstTrafficLightThread, osPriorityNormal, 1, 32000);       // thread object
+osThreadDef(firstTrafficLightThread, osPriorityNormal, 1, 0);       // thread object
 
 osSemaphoreDef(firstSemaphore); 
 osSemaphoreId firstSemaphoreId;	
@@ -60,7 +60,7 @@ int initFirstTrafficLight() {
 	firstThreadState = 0;
 	firstTrafficLightsId = 0;
 	
-	return 0;
+	return 0x0;
 }
 
 void firstTrafficLightThread (void const *argument) {
@@ -81,16 +81,17 @@ void firstTrafficLightThread (void const *argument) {
 			case 1: {
 				processLights(firstThreadStates[stateCopy].lights, firstLightsCount, firstTrafficLightsId, &firstThreadState, stateCopy, firstThreadStates[stateCopy].delay, blinkTimeDelay);
 				
-				osSemaphoreWait(secondSemaphoreId, osWaitForever);
-	
-				secondThreadState = 1;
-	
-				osSemaphoreRelease(secondSemaphoreId);
-				
 				break;
 			}
 			case 2: {
 				processLights(firstThreadStates[stateCopy].lights, firstLightsCount, firstTrafficLightsId, &firstThreadState, stateCopy, firstThreadStates[stateCopy].delay, blinkTimeDelay);
+				
+				osSemaphoreWait(secondSemaphoreId, osWaitForever);
+	
+				secondThreadState = 0;
+	
+				osSemaphoreRelease(secondSemaphoreId);
+				
 				break;
 			}
 		}

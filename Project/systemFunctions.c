@@ -112,8 +112,8 @@ int getLightColorFromState(unsigned int color, unsigned int type) {
 	else if (color == RED_COLOR && type == DIM_STATE) return 0x6800;
 	else if (color == YELLOW_COLOR && type == BRIGHT_STATE) return 0xFC00;
 	else if (color == YELLOW_COLOR && type == DIM_STATE) return 0xBC63;
-	else if (color == GREEN_COLOR && type == BRIGHT_STATE) return 0xFFE0;
-	else if (color == GREEN_COLOR && type == DIM_STATE) return 0xB5C0;
+	else if (color == GREEN_COLOR && type == BRIGHT_STATE) return 0x07E0;
+	else if (color == GREEN_COLOR && type == DIM_STATE) return 0x0340;
 	
 	return 0x0000;
 }

@@ -7,40 +7,33 @@ extern unsigned int blinkTimeDelay;
 unsigned int secondTrafficLightsId;
 int secondStatesCount;
 int secondLightsCount;
-TrafficLightState secondThreadStates[4] = {
+TrafficLightState secondThreadStates[3] = {
 	{
 		{
-			{0, RED_COLOR, BLINK_STATE},
+			{0, RED_COLOR, BRIGHT_STATE},
 			{1, YELLOW_COLOR, DIM_STATE},
-			{2, GREEN_COLOR, BRIGHT_STATE} 
-		}, 4000
-	},
-	{
-		{
-			{0, RED_COLOR, DIM_STATE},
-			{1, YELLOW_COLOR, BLINK_STATE},
-			{2, GREEN_COLOR, BRIGHT_STATE} 
+			{2, GREEN_COLOR, DIM_STATE} 
 		}, 1000
 	},
 	{
 		{
 			{0, RED_COLOR, DIM_STATE},
 			{1, YELLOW_COLOR, BRIGHT_STATE},
-			{2, GREEN_COLOR, BRIGHT_STATE} 
-		}, 3000
+			{2, GREEN_COLOR, DIM_STATE} 
+		}, 1500
 	},
 	{
 		{
-			{0, RED_COLOR, BRIGHT_STATE},
-			{1, YELLOW_COLOR, BLINK_STATE},
-			{2, GREEN_COLOR, BLINK_STATE} 
-		}, 2000
-	}
+			{0, RED_COLOR, DIM_STATE},
+			{1, YELLOW_COLOR, DIM_STATE},
+			{2, GREEN_COLOR, BRIGHT_STATE} 
+		}, 2500
+	},
 };
 
 void secondTrafficLightThread (void const *argument);              // thread function
 osThreadId secondThreadId;                             						// thread id
-osThreadDef(secondTrafficLightThread, osPriorityNormal, 1, 32000);       // thread object
+osThreadDef(secondTrafficLightThread, osPriorityNormal, 1, 0);       // thread object
 
 osSemaphoreDef(secondSemaphore); 
 osSemaphoreId secondSemaphoreId;	
@@ -62,7 +55,7 @@ int initSecondTrafficLight() {
 		return -1;
 	
 	secondLightsCount = 3;
-	secondStatesCount = 4;
+	secondStatesCount = 3;
 	secondThreadState = 0;
 	secondTrafficLightsId = 1;
 	
@@ -90,16 +83,17 @@ void secondTrafficLightThread (void const *argument) {
 			}
 			case 2: {
 				processLights(secondThreadStates[stateCopy].lights, secondLightsCount, secondTrafficLightsId, &secondThreadState, stateCopy, secondThreadStates[stateCopy].delay, blinkTimeDelay);
+				
+				osSemaphoreWait(thirdSemaphoreId, osWaitForever);
+	
+				thirdThreadState = 0;
+	
+				osSemaphoreRelease(thirdSemaphoreId);
+				
 				break;
 			}
 			case 3: {
 				processLights(secondThreadStates[stateCopy].lights, secondLightsCount, secondTrafficLightsId, &secondThreadState, stateCopy, secondThreadStates[stateCopy].delay, blinkTimeDelay);
-				
-				osSemaphoreWait(thirdSemaphoreId, osWaitForever);
-	
-				thirdThreadState = 2;
-	
-				osSemaphoreRelease(thirdSemaphoreId);
 				
 				break;
 			}
