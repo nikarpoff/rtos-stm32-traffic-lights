@@ -13,7 +13,6 @@ typedef struct {
 	unsigned char threadId;
 	unsigned char lightId;
 	unsigned int color;
-	unsigned int type;
 } Message;
 
 typedef struct {
@@ -24,14 +23,14 @@ typedef struct {
 
 typedef struct {
 	Ligth lights[3];
+	unsigned int delay;
 } TrafficLightState;
 
 typedef struct {
 	Ligth light;
-	osMessageQId queueId;
 	unsigned char threadId;
-	unsigned int stateIdCopy;
-	unsigned int* stateId;
+	int stateIdCopy;
+	volatile int* stateId;
 	unsigned int blinkTimeDelay;
 	unsigned int totalTimeDelay;
 } BlinkyInfo;
