@@ -1,16 +1,58 @@
 #include "RTE_Components.h"
 #include CMSIS_device_header
-#include "cmsis_os.h"    
+#include "cmsis_os.h"
+#include "LCD_ILI9325.h"
 
-void delay(volatile uint32_t count){
-	while(count--)
-	__NOP();
-}
+unsigned int blinkTimeDelay = 500;
+unsigned int microDelay = 100;
+
+void ConfigureApp();
+extern void InitMessageQueue();
+extern void StartConsumer();
+extern int Init_Input (void);
+extern int initFirstTrafficLight();
+extern int initSecondTrafficLight();
+extern int initThirdTrafficLight();
 
 int main(void)
 {
-	osKernelInitialize(); /* initialize CMSIS-RTOS          */
+	osKernelInitialize();
 	
+	ConfigureApp();
+	InitDisplay();
+	
+	InitMessageQueue();
+	StartConsumer();
+	
+	int result;
+	
+	result = Init_Input();
+	
+	if (result != 0 ) 
+		return -1;
+	
+	result = initFirstTrafficLight();
+	
+	if (result != 0 ) 
+		return -1;
+	
+	result = initSecondTrafficLight();
+	
+	if (result != 0 ) 
+		return -1;
+	
+	result = initThirdTrafficLight();
+	
+	if (result != 0 ) 
+		return -1;
+	
+	osKernelStart();
+	
+	
+	while(1) { }
+}
+
+void ConfigureApp() {
 	volatile uint32_t StartUpCounter = 0, HSEStatus = 0;
 	SET_BIT(RCC -> CR,RCC_CR_HSEON);
 	
@@ -56,22 +98,4 @@ int main(void)
 	SET_BIT(GPIOE->OTYPER,GPIO_OTYPER_OT_13);
 
 	SET_BIT(GPIOE->PUPDR, GPIO_PUPDR_PUPDR13_0);
-	
-	osKernelStart(); /* start thread execution         */
-	
-	InitDisplay();
-	
-	
-	while(1){
-		
-		GPIOE->BSRR = GPIO_ODR_11|GPIO_ODR_13;
-		
-		osDelay(50);
-		
-		//delay(10);
-		GPIOE->BRR = GPIO_ODR_11|GPIO_ODR_13;
-		//delay(10);
-		
-		osDelay(50);
-	}
 }
