@@ -50,7 +50,7 @@ extern osSemaphoreId thirdSemaphoreId;
 extern void processLights(Ligth const* lights, int const count, unsigned char threadId, volatile int* stateId, int stateIdCopy, unsigned int totalTimeDelay, unsigned int blinkTimeDelay);
 extern int customDelay(unsigned int microDelay, unsigned int totalDelay, unsigned int stateCopy, unsigned int* state);
 
-int initFirstTrafficLight() {
+int initSecondTrafficLight() {
 	secondSemaphoreId = osSemaphoreCreate(osSemaphore(secondSemaphore), 1);
 	
 	if (!secondSemaphoreId) 
@@ -64,12 +64,12 @@ int initFirstTrafficLight() {
 	secondLightsCount = 3;
 	secondStatesCount = 4;
 	secondThreadState = 0;
-	secondTrafficLightsId = 0;
+	secondTrafficLightsId = 1;
 	
 	return 0;
 }
 
-void firstTrafficLightThread (void const *argument) {
+void secondTrafficLightThread (void const *argument) {
 	int stateCopy;
 	
 	while (1) {
