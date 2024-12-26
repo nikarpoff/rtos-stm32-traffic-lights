@@ -2,11 +2,12 @@
 #include "utility.c"
 
 volatile int firstThreadState;
-extern int thirdThreadState;
+extern volatile int secondThreadState;
 extern unsigned int blinkTimeDelay;
-unsigned int threadId;
-int statesCount;
-int lightsCount;
+extern unsigned int microDelay;
+unsigned int firstTrafficLightsId;
+int firstStatesCount;
+int firstLightsCount;
 TrafficLightState firstThreadStates[3] = {
 	{
 		{
@@ -33,15 +34,15 @@ TrafficLightState firstThreadStates[3] = {
 
 void firstTrafficLightThread (void const *argument);              // thread function
 osThreadId firstThreadId;                             						// thread id
-osThreadDef(firstTrafficLightThread, osPriorityNormal, 1, 32);       // thread object
+osThreadDef(firstTrafficLightThread, osPriorityNormal, 1, 32000);       // thread object
 
 osSemaphoreDef(firstSemaphore); 
 osSemaphoreId firstSemaphoreId;	
 
-extern osSemaphoreId thirdSemaphoreId;
+extern osSemaphoreId secondSemaphoreId;
 
 extern void processLights(Ligth const* lights, int const count, unsigned char threadId, volatile int* stateId, int stateIdCopy, unsigned int totalTimeDelay, unsigned int blinkTimeDelay);
-extern int customDelay(unsigned int microDelay, unsigned int totalDelay, unsigned int stateCopy, unsigned int* state);
+extern int customDelay(unsigned int microDelay, unsigned int totalDelay, int stateCopy, volatile int* state);
 
 int initFirstTrafficLight() {
 	firstSemaphoreId = osSemaphoreCreate(osSemaphore(firstSemaphore), 1);
@@ -54,10 +55,10 @@ int initFirstTrafficLight() {
 	if (!firstThreadId) 
 		return -1;
 	
-	lightsCount = 3;
-	statesCount = 3;
+	firstLightsCount = 3;
+	firstStatesCount = 3;
 	firstThreadState = 0;
-	threadId = 0;
+	firstTrafficLightsId = 0;
 	
 	return 0;
 }
@@ -74,30 +75,32 @@ void firstTrafficLightThread (void const *argument) {
 		
 		switch (stateCopy) {
 			case 0: {
-				processLights(firstThreadStates[stateCopy].lights, lightsCount, threadId, &firstThreadState, stateCopy, firstThreadStates[stateCopy].delay, blinkTimeDelay);
+				processLights(firstThreadStates[stateCopy].lights, firstLightsCount, firstTrafficLightsId, &firstThreadState, stateCopy, firstThreadStates[stateCopy].delay, blinkTimeDelay);
 				break;
 			}
 			case 1: {
-				processLights(firstThreadStates[stateCopy].lights, lightsCount, threadId, &firstThreadState, stateCopy, firstThreadStates[stateCopy].delay, blinkTimeDelay);
+				processLights(firstThreadStates[stateCopy].lights, firstLightsCount, firstTrafficLightsId, &firstThreadState, stateCopy, firstThreadStates[stateCopy].delay, blinkTimeDelay);
 				
-				osSemaphoreWait(firstSemaphoreId, osWaitForever);
+				osSemaphoreWait(secondSemaphoreId, osWaitForever);
 	
-				thirdThreadState = 1;
+				secondThreadState = 1;
 	
-				osSemaphoreRelease(firstSemaphoreId);
+				osSemaphoreRelease(secondSemaphoreId);
 				
 				break;
 			}
 			case 2: {
-				processLights(firstThreadStates[stateCopy].lights, lightsCount, threadId, &firstThreadState, stateCopy, firstThreadStates[stateCopy].delay, blinkTimeDelay);
+				processLights(firstThreadStates[stateCopy].lights, firstLightsCount, firstTrafficLightsId, &firstThreadState, stateCopy, firstThreadStates[stateCopy].delay, blinkTimeDelay);
 				break;
 			}
 		}
 			
 		osSemaphoreWait(firstSemaphoreId, osWaitForever);
 	
-		firstThreadState = (firstThreadState + 1) % statesCount;
+		firstThreadState = (firstThreadState + 1) % firstStatesCount;
 	
 		osSemaphoreRelease(firstSemaphoreId);
+		
+		customDelay(microDelay, firstThreadStates[stateCopy].delay, stateCopy, &firstThreadState);
 	}
 }
