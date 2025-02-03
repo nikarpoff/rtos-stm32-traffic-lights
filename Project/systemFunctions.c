@@ -1,14 +1,15 @@
 #include "cmsis_os.h"
 #include "utility.c"
+#include <stdlib.h>
 
-extern void sendMessage(Message message);
-void blinkTheColor(void const* argument);
+extern void sendMessage(Message* message);
+//void blinkTheColor(void const* argument);
 int customDelay(unsigned int microDelay, unsigned int totalDelay, int stateCopy, volatile int* state);
-void processLights(Ligth const* lights, int const count, unsigned char threadId, volatile int* stateId, int stateIdCopy, unsigned int totalTimeDelay, unsigned int blinkTimeDelay);
+void processLights(Ligth const* lights, unsigned int const count, unsigned char threadId/*, volatile int* stateId, int stateIdCopy, unsigned int totalTimeDelay, unsigned int blinkTimeDelay*/);
 int getLightColorFromState(unsigned int color, unsigned int type);
-void processBlinkLight(void* argument);
+//void processBlinkLight(void* argument);
 
-void blinkTheColor(void const* argument) {
+/*void blinkTheColor(void const* argument) {
 	BlinkyInfo* blinkyInfo = (BlinkyInfo*)argument;
 	
 	if (argument == NULL) {
@@ -52,7 +53,7 @@ void blinkTheColor(void const* argument) {
 		
 		currentDelayTime = currentDelayTime + blinkyInfo->blinkTimeDelay;
 	}
-}
+}*/
 
 int customDelay(unsigned int microDelay, unsigned int totalDelay, int stateCopy, volatile int* state) {
 	unsigned int currentDelayTime;
@@ -71,8 +72,15 @@ int customDelay(unsigned int microDelay, unsigned int totalDelay, int stateCopy,
 	return 0;
 }
 
-void processLights(Ligth const* lights, int const count, unsigned char threadId, volatile int* stateId, int stateIdCopy, unsigned int totalTimeDelay, unsigned int blinkTimeDelay) {
-	for (int i = 0; i < count; i++) {
+void processLights(Ligth const* lights, unsigned int const count, unsigned char threadId/*, volatile int* stateId, int stateIdCopy, unsigned int totalTimeDelay, unsigned int blinkTimeDelay*/) {
+	Message* message = (Message*)malloc(sizeof(Message));
+	message->lights = lights;
+	message->count = count;
+	message->threadId = threadId;
+	
+	sendMessage(message);
+	
+	/*for (int i = 0; i < count; i++) {
 		Ligth light;
 		light = *(lights + i);
 		
@@ -99,13 +107,13 @@ void processLights(Ligth const* lights, int const count, unsigned char threadId,
 			
 			sendMessage(message);
 		}
-	}
+	}*/
 }
 
-void processBlinkLight(void * argument) {
+/*void processBlinkLight(void * argument) {
 	osThreadDef(blinkTheColor, osPriorityNormal, 1, 32);
 	osThreadCreate(osThread(blinkTheColor), argument);
-}
+}*/
 
 int getLightColorFromState(unsigned int color, unsigned int type) {
 	if (color == RED_COLOR && type == BRIGHT_STATE) return 0xF800;

@@ -9,17 +9,22 @@
 #define DIM_STATE 2
 #define BLINK_STATE 3
 
-typedef struct {
+/*typedef struct {
 	unsigned char threadId;
 	unsigned char lightId;
 	unsigned int color;
-} Message;
+} Message;*/
 
 typedef struct {
-	unsigned char lightId;
-	unsigned int color;
-	unsigned int type;
+	//unsigned char lightId;
+	const char* color;
 } Ligth;
+
+typedef struct {
+	unsigned char threadId;
+	const Ligth* lights;
+	unsigned int count;
+} Message;
 
 typedef struct {
 	Ligth lights[3];

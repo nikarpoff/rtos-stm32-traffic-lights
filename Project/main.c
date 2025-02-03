@@ -19,8 +19,8 @@ int main(void)
 {
 	osKernelInitialize();
 	
-	ConfigureApp();
-	InitDisplay(3, 3);
+	//ConfigureApp();
+	//InitDisplay(3, 3);
 	
 	InitMessageQueue();
 	StartConsumer();
@@ -55,12 +55,13 @@ int main(void)
 
 
 void ConfigureApp() {
-	volatile uint32_t StartUpCounter = 0, HSEStatus = 0;
-	SET_BIT(RCC -> CR,RCC_CR_HSEON);
+	/*volatile uint32_t StartUpCounter = 0, HSEStatus = 0;
+	SET_BIT(RCC -> CR, RCC_CR_HSEON);
 	
 	do {
 		HSEStatus = RCC->CR & RCC_CR_HSERDY;
 		StartUpCounter++;
+
 	} while((HSEStatus == 0) && (StartUpCounter != 0x5000));
 	
 	if ((RCC->CR & RCC_CR_HSERDY) != RESET) 
@@ -84,7 +85,7 @@ void ConfigureApp() {
 		while(1){} 
 	}
 	
-	SystemCoreClockUpdate();
+	SystemCoreClockUpdate();*/
 
 	SET_BIT(RCC -> CFGR, RCC_CFGR_MCO_PLL);
 	SET_BIT(RCC -> AHBENR,RCC_AHBENR_GPIOAEN);
