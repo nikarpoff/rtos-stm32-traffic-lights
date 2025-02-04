@@ -91,7 +91,7 @@ void Input_K1_Thread (void const *argument) {
  *---------------------------------------------------------------------------*/
 void Input_K2_Thread (void const *argument) {	
 		while (1) {
-				// Check is PB7 (k1) pressed
+				// Check is PC6 (k2) pressed
 				if ((GPIOC->IDR & GPIO_IDR_6) == 0) {  
 						// k2 pressed -> k1 cannot be checked
 						osSemaphoreWait(semaphore_input_id, osWaitForever); // wait for ability to check k2 (when k1 is not pressed)
