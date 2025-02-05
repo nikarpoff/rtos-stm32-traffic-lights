@@ -14,21 +14,21 @@ TrafficLightState secondThreadStates[3] = {
 			{"RB"},
 			{"YD"},
 			{"GD"}
-		}, 1000
+		}, 10000
 	},
 	{
 		{
 			{"RD"},
 			{"YB"},
 			{"GD"}
-		}, 1500
+		}, 15000
 	},
 	{
 		{
 			{"RD"},
 			{"YD"},
 			{"GB"}
-		}, 2500
+		}, 25000
 	},
 };
 
